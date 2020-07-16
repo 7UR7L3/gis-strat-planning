@@ -1,0 +1,378 @@
+<html>
+
+<head>
+
+<style>
+svg
+{
+	border: solid 1px black;
+	width: 100%;
+	height: 90%;
+	padding: 0;
+}
+iframe
+{
+	width: 100%;
+	height: 100%;
+}
+
+html, body
+{
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
+
+
+#grid
+{
+	display: grid;
+	grid-gap: 10px;
+	grid-template-columns: 1fr 400px;
+	height: 100%;
+}
+#graph
+{
+	grid-column: 1;
+}
+#sidebar
+{
+	grid-column: 2;
+	border: solid 1px black;
+}
+</style>
+
+<script src="https://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+<script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
+<script src="https://unpkg.com/d3-graphviz@2.6.1/build/d3-graphviz.min.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+<div id="grid">
+	<div id="graph"></div>
+	<div id="sidebar">(click a course to load its details)</div>
+</div>
+
+<script>
+async function main()
+{
+
+var reqs =
+{
+	node: "da strat",
+	and:
+	[
+		{
+			node: "a&s skills",
+			and:
+			[
+				{ node: "foreign\nlanguage", status: "fulfilled" }
+
+			]
+		},
+		{
+			node: "geography\nmajor",
+			and:
+			[
+				{ node: "geog1001" },
+				{ node: "geog1011" },
+				{
+					node: "lower division\nhuman geography",
+					status: "fulfilled",
+					and: [ { node: "geog1982" } ]
+				},
+				{
+					node: "statistics",
+					status: "fulfilled",
+					and: [ { node: "math2510" } ]
+				},
+				{
+					node: "cartography",
+					hidden: true,
+					or:
+					[
+						{ node: "geog2053" },
+						{ node: "geog3053" }
+					]
+				},
+				{
+					node: "a methods course",
+					hidden: true,
+					or:
+					[
+						{ node: "geog4023" },
+						{ node: "geog4043" },
+						{ node: "geog4093" },
+						{ node: "geog4100\n[Hydrologic Field Methods]" },
+						{ node: "geog4100\n[Earth Analytics]" },
+						{ node: "geog4100\n[Data Science Boot Camp]" },
+						{ node: "geog4173" },
+						{ node: "geog4463" },
+						{ node: "geog4563" },
+						{ node: "geog4722" },
+					]
+				}
+			]
+		},
+		{
+			node: "gis\nconcentration",
+			and:
+			[
+				{ node: "geog4103" },
+				{
+					node: "three gis\nconcentration\nelectives",
+					and:
+					[
+						{ node: "geog4003\n[Advanced Remote Sensing]" },
+						{ node: "geog4003\n[Spatial Data Science]" },
+						{ node: "geog4043" },
+						{ node: "geog4093" },
+						{ node: "geog4110\n[Advanced Remote Sensing]" },
+						{ node: "geog4173" },
+						{ node: "geog4203" },
+						{ node: "geog4303" },
+						{ node: "geog4403" },
+						{ node: "geog4503" }
+					]
+				},
+				{ node: "an upper division\nnon-GIS GEOG" }
+			]
+		},
+		{
+			node: "undergrad certificate\nin gis and\ncomputational science",
+			and:
+			[
+				{
+					hidden: true,
+					node: "intro to\ncomputer science",
+					or:
+					[
+						{ node: "csci1200" },
+						{ node: "csci1300" },
+						{ node: "info1201" }
+					]
+				},
+				{ node: "geog3023", status: "fulfilled" },
+				{
+					hidden: true,
+					node: "data\nstructures",
+					or:
+					[
+						{ node: "info2201" },
+						{ node: "csci2270" }
+					]
+				},
+				{
+					hidden: true,
+					node: "gis mapping or\ngis for social and\nnatural sciences",
+					or:
+					[
+						{ node: "geog3053" },
+						{ node: "geog4603" }
+					]
+				},
+				{ node: "geog4103" },
+				{
+					node: "two additional\ngis electives",
+					and:
+					[
+						{ node: "geog4043" },
+						{ node: "geog4203" },
+						{ node: "geog4303" },
+						{ node: "geog4403" },
+						{ node: "geog4503" },
+						{ node: "geog3050" },
+					]
+				}
+			]
+		},
+		{
+			node: "atoc minor",
+			and:
+			[
+				{ node: "any 6 atoc classes\n3 upper, 3 lower" }
+			]
+		},
+		{
+			node: "csci minor",
+			and:
+			[
+				{
+					node: "calc 1",
+					status: "fulfilled",
+					and: [ { node: "math1300" } ]
+				},
+				{
+					node: "calc 2",
+					or:
+					[
+						{ node: "math2300" },
+						{ node: "appm1360" }
+					]
+				},
+				{ node: "csci1300" },
+				{ node: "csci2270" },
+				{
+					node: "computer systems or computer organization",
+					hidden: true,
+					or:
+					[
+						{ node: "csci2400" },
+						{ node: "ecen3593" }
+					]
+				},
+				{
+					node: "algorithms, programming languages, or operating systems",
+					hidden: true,
+					or:
+					[
+						{ node: "csci3104" },
+						{ node: "csci3155" },
+						{ node: "csci3753" }
+					]
+				}
+
+			]
+		}
+	]
+};
+
+var gv =
+`
+digraph G {
+graph [nodesep=.1, ranksep=.9, bgcolor="#ffffff00"]
+node [shape=Mrecord, style=rounded, width=.9, height=.4, style="filled", fillcolor="transparent"]
+
+"have 27-180\ncredits" -> "geog3053"
+"geog3023" -> "geog4023"
+"geog3053" -> "geog4043"
+"geog3053" -> "geog4103"
+"math2510" -> "geog4103"
+"have 87-180\ncredits" -> "geog4173"
+"geog4103" -> "geog4203"
+"geog4103" -> "geog4303"
+"orgeog3023geog4023" -> "geog4403"
+"geog3023" -> "orgeog3023geog4023"
+"geog4023" -> "orgeog3023geog4023"
+"orgeog3023geog4023" [label="or"]
+"have 57-180\ncredits" -> "geog4463"
+"orgeog3053geog4103" -> "geog4503"
+"geog3053" -> "orgeog3053geog4103"
+"geog4103" -> "orgeog3053geog4103"
+"orgeog3053geog4103" [label="or"]
+"oratls1300csci1200csci1300info1201ling1200" -> "info2201"
+"info1201" -> "oratls1300csci1200csci1300info1201ling1200"
+"csci1300" -> "oratls1300csci1200csci1300info1201ling1200"
+"csci1200" -> "oratls1300csci1200csci1300info1201ling1200"
+"ling1200" -> "oratls1300csci1200csci1300info1201ling1200"
+"atls1300" -> "oratls1300csci1200csci1300info1201ling1200"
+"oratls1300csci1200csci1300info1201ling1200" [label="or"]
+"math1300" -> "csci1300"
+"orcsci1300csci1310csci1320ecen1310" -> "csci2270"
+"csci1300" -> "orcsci1300csci1310csci1320ecen1310"
+"csci1310" -> "orcsci1300csci1310csci1320ecen1310"
+"csci1320" -> "orcsci1300csci1310csci1320ecen1310"
+"ecen1310" -> "orcsci1300csci1310csci1320ecen1310"
+"orcsci1300csci1310csci1320ecen1310" [label="or"]
+"orcsci2270csci2275" -> "csci2400"
+"csci2270" -> "orcsci2270csci2275"
+"csci2275" -> "orcsci2270csci2275"
+"orcsci2270csci2275" [label="or"]
+"math1300" -> "csci2275"
+"orcsci2270csci2275" -> "csci3104"
+"math2300" -> "csci3104"
+"orappm3170csci2824ecen2703math2001" -> "csci3104"
+"csci2824" -> "orappm3170csci2824ecen2703math2001"
+"ecen2703" -> "orappm3170csci2824ecen2703math2001"
+"appm3170" -> "orappm3170csci2824ecen2703math2001"
+"math2001" -> "orappm3170csci2824ecen2703math2001"
+"orappm3170csci2824ecen2703math2001" [label="or"]
+"orcsci2270csci2275" -> "csci3753"
+"csci2400" -> "csci3573"
+"orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310" -> "csci2824"
+"csci1200" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"csci1300" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"csci1310" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"csci1320" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"csci2275" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"ecen1030" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"ecen1310" -> "orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310"
+"orcsci1200csci1300csci1310csci1320csci2275ecen1030ecen1310" [label="or"]
+"math1300" -> "csci2824"
+`;
+
+function fillGV( reqNode, parentName=null )
+{
+	if( "node" in reqNode && !( "hidden" in reqNode && reqNode.hidden ) )
+	{
+		if( parentName ) gv += `"${reqNode.node}" -> "${parentName}"\n`;
+		if( "or" in reqNode )
+		{
+			var orOn = "or" + reqNode.or.map( e => e.node ).sort().join("");
+			gv += `"${orOn}" -> "${reqNode.node}"\n`;
+			gv += `"${orOn}" [label="or"]\n`;
+			for( var or of reqNode.or )
+				fillGV( or, orOn );
+		}
+		if( "and" in reqNode )
+			for( var and of reqNode.and )
+				fillGV( and, reqNode.node );
+	}
+	else
+	{
+		if( "or" in reqNode )
+		{
+			var orOn = "or" + reqNode.or.map( e => e.node ).sort().join("");
+			gv += `"${orOn}" -> "${parentName}"\n`;
+			gv += `"${orOn}" [label="or"]\n`;
+			gv += `"${orOn}" [tooltip="${reqNode.node}"]\n`;
+			for( var or of reqNode.or )
+				fillGV( or, orOn );
+		}
+		if( "and" in reqNode )
+			for( var and of reqNode.and )
+				fillGV( and, parentName );
+	}
+}
+fillGV( reqs );
+gv += "}";
+console.log( "graphviz:", gv );
+
+function graphvizGenerated()
+{
+	for( var node of document.querySelectorAll( ".node" ) )
+	{
+		node.addEventListener( "click", e =>
+		{
+			var nodeOver = e.target.parentElement;
+			var courseCode = nodeOver.querySelector("title").innerHTML;
+			document.querySelector( "#sidebar" ).innerHTML =
+			`<iframe src="https://datc.prod.cu.edu/selfservice-cubld/plannedcourse/preview.html?department=${courseCode.slice(0, 4).toUpperCase()}&number=${courseCode.slice(4, 9)}">`;
+		} );
+	}
+}
+
+
+while( typeof d3 === "undefined" )
+{
+	console.log( "waiting for d3 to load..." );
+	await new Promise(r => setTimeout(r, 1000));
+}
+d3.select( "#graph" ).graphviz()
+	.totalMemory( 32 * 1024 * 1024 )
+	.zoomScaleExtent( [ .3, 30 ] )
+	.dot( gv )
+	.render( callback => graphvizGenerated() );
+
+}
+main();
+
+///// TODOs:
+// allow contracting of nodes and uncontracting of nodes by clicking on the edges; there should be a tooltip showing that it's contracted
+// allow hiding / collapsing node descendants
+// allow filtering out fulfilled branches
+</script>
+
+</body>
+
+</html>
